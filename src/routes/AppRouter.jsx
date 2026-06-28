@@ -4,6 +4,8 @@ import ProtectedRoute from './ProtectedRoute';
 import RoleRoute from './RoleRoute';
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
+import LandingPage from '../pages/auth/LandingPage';
+import KycPage from '../pages/auth/KycPage';
 import MainLayout from '../components/layouts/MainLayout';
 import { ROUTES } from '../constants/routes';
 import { ROLES } from '../constants/leaveTypes';
@@ -26,6 +28,7 @@ import LeaveBalance from '../pages/leave/LeaveBalance';
 // Manager
 import PendingApprovals from '../pages/manager/PendingApprovals';
 import ManagerTeam from '../pages/manager/ManagerTeam';
+import ManagerKycApprovals from '../pages/manager/ManagerKycApprovals';
 
 // HR
 import HRAnalytics from '../pages/hr/HRAnalytics';
@@ -34,7 +37,6 @@ import LeaveReport from '../pages/hr/LeaveReport';
 
 // Admin
 import UserManagement from '../pages/admin/UserManagement';
-import AdminApprovals from '../pages/admin/AdminApprovals';
 
 // Errors
 import NotFound from '../pages/errors/NotFound';
@@ -44,6 +46,9 @@ import useAuth from '../hooks/useAuth';
 
 const DashboardRouter = () => {
   const { user } = useAuth();
+  if (user?.role === ROLES.EMPLOYEE && user?.kycStatus !== 'APPROVED') {
+    return <Navigate to="/kyc" replace />;
+  }
   if (user?.role === ROLES.ADMIN) return <AdminDashboard />;
   if (user?.role === ROLES.HR) return <HRDashboard />;
   if (user?.role === ROLES.MANAGER) return <ManagerDashboard />;
@@ -54,6 +59,7 @@ const AppRouter = () => {
   return (
     <Routes>
       {/* Public routes */}
+      <Route path="/" element={<LandingPage />} />
       <Route path={ROUTES.LOGIN} element={<LoginPage />} />
       <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
 
@@ -66,6 +72,9 @@ const AppRouter = () => {
               <Routes>
                 {/* Dynamically route dashboard page based on user role */}
                 <Route path={ROUTES.DASHBOARD} element={<DashboardRouter />} />
+
+                {/* KYC Page */}
+                <Route path="/kyc" element={<KycPage />} />
 
                 {/* Employee / General routes */}
                 <Route
@@ -87,7 +96,7 @@ const AppRouter = () => {
                 <Route
                   path={ROUTES.LEAVE_APPLY}
                   element={
-                    <RoleRoute roles={[ROLES.EMPLOYEE]}>
+                    <RoleRoute roles={[ROLES.EMPLOYEE, ROLES.MANAGER]}>
                       <ApplyLeave />
                     </RoleRoute>
                   }
@@ -103,13 +112,23 @@ const AppRouter = () => {
                 <Route
                   path={ROUTES.LEAVE_BALANCE}
                   element={
-                    <RoleRoute roles={[ROLES.EMPLOYEE]}>
+                    <RoleRoute roles={[ROLES.EMPLOYEE, ROLES.MANAGER]}>
                       <LeaveBalance />
                     </RoleRoute>
                   }
                 />
 
-                {/* Manager / HR Approvals route */}
+                {/* Manager KYC Approvals */}
+                <Route
+                  path={ROUTES.MANAGER_KYC}
+                  element={
+                    <RoleRoute roles={[ROLES.MANAGER]}>
+                      <ManagerKycApprovals />
+                    </RoleRoute>
+                  }
+                />
+
+                {/* Manager / HR Leave Approvals route */}
                 <Route
                   path={ROUTES.MANAGER_APPROVALS}
                   element={
@@ -159,14 +178,6 @@ const AppRouter = () => {
                   element={
                     <RoleRoute roles={[ROLES.ADMIN]}>
                       <UserManagement />
-                    </RoleRoute>
-                  }
-                />
-                <Route
-                  path={ROUTES.ADMIN_APPROVALS}
-                  element={
-                    <RoleRoute roles={[ROLES.ADMIN]}>
-                      <AdminApprovals />
                     </RoleRoute>
                   }
                 />

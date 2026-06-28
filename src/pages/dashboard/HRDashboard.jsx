@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Grid, Box, Card, CardContent, Typography, Button, CircularProgress, Chip
+  Grid, Box, Card, CardContent, Typography, Button, CircularProgress, Chip,
+  Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel,
+  Select, MenuItem, Alert, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Paper
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,10 +14,12 @@ import {
 } from 'recharts';
 import dayjs from 'dayjs';
 import hrService from '../../services/hrService';
+import authService from '../../services/authService';
 import { fetchAllLeaves, fetchPendingRequests } from '../../redux/slices/leaveSlice';
-import { fetchAllUsers } from '../../redux/slices/authSlice';
+import { fetchAllUsers, fetchManagers } from '../../redux/slices/authSlice';
 import StatsCard from '../../components/common/StatsCard';
 import PageHeader from '../../components/common/PageHeader';
+import { toast } from 'react-toastify';
 import { ROUTES } from '../../constants/routes';
 import { last30DaysStart, today } from '../../utils/dateUtils';
 
@@ -30,7 +35,7 @@ const HRDashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { allLeaves, pendingRequests, loading: leaveLoading } = useSelector(state => state.leave);
-  const { users, usersLoading } = useSelector(state => state.auth);
+  const { users, usersLoading, managers } = useSelector(state => state.auth);
 
   const [attendanceReport, setAttendanceReport] = useState([]);
   const [reportLoading, setReportLoading] = useState(false);
@@ -39,6 +44,7 @@ const HRDashboard = () => {
     dispatch(fetchAllLeaves());
     dispatch(fetchAllUsers());
     dispatch(fetchPendingRequests());
+    dispatch(fetchManagers());
     fetchAttendanceReport();
   }, [dispatch]);
 
@@ -98,22 +104,22 @@ const HRDashboard = () => {
       />
 
       <Grid container spacing={3}>
-        <Grid item xs={6} sm={3}>
+        <Grid xs={6} sm={3}>
           <StatsCard title="Total Employees" value={totalEmployees} icon={PeopleIcon} color="primary" loading={usersLoading} />
         </Grid>
-        <Grid item xs={6} sm={3}>
+        <Grid xs={6} sm={3}>
           <StatsCard title="Checked In Today" value={checkedInToday} icon={LoginIcon} color="success" loading={reportLoading} />
         </Grid>
-        <Grid item xs={6} sm={3}>
+        <Grid xs={6} sm={3}>
           <StatsCard title="Late Arrivals" value={lateToday} icon={WarningIcon} color="warning" loading={reportLoading} />
         </Grid>
-        <Grid item xs={6} sm={3}>
+        <Grid xs={6} sm={3}>
           <StatsCard title="On Leave Today" value={onLeaveToday} icon={EventBusyIcon} color="error" loading={leaveLoading} />
         </Grid>
 
         {/* Pending HR Leaves */}
         {pendingHR > 0 && (
-          <Grid item xs={12}>
+          <Grid xs={12}>
             <Card sx={{ borderRadius: 3, border: '2px solid', borderColor: 'warning.main', bgcolor: 'warning.50' }}>
               <CardContent sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -131,7 +137,7 @@ const HRDashboard = () => {
         )}
 
         {/* Monthly Leave Trend */}
-        <Grid item xs={12} md={7}>
+        <Grid xs={12} md={7}>
           <Card sx={{ borderRadius: 3 }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" fontWeight={700} gutterBottom>Monthly Leave Trend</Typography>
@@ -153,7 +159,7 @@ const HRDashboard = () => {
         </Grid>
 
         {/* Leave by Type */}
-        <Grid item xs={12} md={5}>
+        <Grid xs={12} md={5}>
           <Card sx={{ borderRadius: 3 }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" fontWeight={700} gutterBottom>Leaves by Type</Typography>
@@ -170,6 +176,80 @@ const HRDashboard = () => {
                   </BarChart>
                 </ResponsiveContainer>
               </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Employee Directory & Manager Mapping */}
+        <Grid xs={12}>
+          <Card sx={{ borderRadius: 3, mb: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography variant="h6" fontWeight={700} gutterBottom>Employee Directory & Manager Mapping</Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                View all registered employees and map them to their respective reporting managers.
+              </Typography>
+              
+              {usersLoading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}><CircularProgress size={30} /></Box>
+              ) : (
+                <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 'none', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
+                  <Table size="small">
+                    <TableHead sx={{ bgcolor: 'action.hover' }}>
+                      <TableRow>
+                        <TableCell><strong>ID</strong></TableCell>
+                        <TableCell><strong>Employee Name</strong></TableCell>
+                        <TableCell><strong>Email</strong></TableCell>
+                        <TableCell><strong>KYC Status</strong></TableCell>
+                        <TableCell><strong>Reporting Manager</strong></TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {users.filter(u => u.role === 'EMPLOYEE').map((emp) => (
+                        <TableRow key={emp.id} hover>
+                          <TableCell>{emp.id}</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>{emp.username}</TableCell>
+                          <TableCell>{emp.email}</TableCell>
+                          <TableCell>
+                            <Chip 
+                              label={emp.kycStatus || 'PENDING'} 
+                              size="small" 
+                              color={
+                                emp.kycStatus === 'APPROVED' ? 'success' : 
+                                emp.kycStatus === 'REJECTED' ? 'error' : 'warning'
+                              }
+                              sx={{ fontWeight: 700, fontSize: '0.7rem', borderRadius: 1.5 }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <FormControl size="small" fullWidth sx={{ minWidth: 200 }}>
+                              <Select
+                                value={emp.managerId || ''}
+                                displayEmpty
+                                onChange={async (e) => {
+                                  const mgrId = e.target.value;
+                                  if (!mgrId) return;
+                                  try {
+                                    await authService.assignManager(emp.id, mgrId);
+                                    toast.success(`Successfully mapped ${emp.username} to manager`);
+                                    dispatch(fetchAllUsers());
+                                  } catch (err) {
+                                    toast.error("Failed to map manager");
+                                  }
+                                }}
+                              >
+                                <MenuItem value="" disabled><em>Unassigned</em></MenuItem>
+                                {managers.map(mgr => (
+                                  <MenuItem key={mgr.id} value={mgr.id}>{mgr.username}</MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
             </CardContent>
           </Card>
         </Grid>

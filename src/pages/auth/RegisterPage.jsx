@@ -122,7 +122,7 @@ const RegisterPage = () => {
 
             <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid xs={12}>
                   <TextField
                     fullWidth
                     label="Full Name / Username"
@@ -137,7 +137,7 @@ const RegisterPage = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                   <TextField
                     fullWidth
                     label="Email Address"
@@ -153,7 +153,7 @@ const RegisterPage = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                   <TextField
                     fullWidth
                     label="Password"
@@ -169,7 +169,7 @@ const RegisterPage = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid xs={12}>
                   <FormControl fullWidth error={!!errors.role}>
                     <InputLabel>Role</InputLabel>
                     <Controller
@@ -188,7 +188,7 @@ const RegisterPage = () => {
                 </Grid>
 
                 {selectedRole === ROLES.EMPLOYEE && (
-                  <Grid item xs={12}>
+                  <Grid xs={12}>
                     <FormControl fullWidth error={!!errors.managerId}>
                       <InputLabel>Reporting Manager *</InputLabel>
                       <Controller

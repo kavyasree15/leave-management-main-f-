@@ -135,7 +135,7 @@ const EmployeeDashboard = () => {
 
       <Grid container spacing={3}>
         {/* ---- CHECK-IN / OUT CARD ---- */}
-        <Grid item xs={12} md={8}>
+        <Grid xs={12} md={8}>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <Card sx={{
               borderRadius: 3,
@@ -150,7 +150,7 @@ const EmployeeDashboard = () => {
               }} />
               <CardContent sx={{ p: 4 }}>
                 <Grid container spacing={3} sx={{ alignItems: 'center' }}>
-                  <Grid item xs={12} sm={6}>
+                  <Grid xs={12} sm={6}>
                     {/* Live Clock */}
                     <Typography variant="caption" sx={{ opacity: 0.6, letterSpacing: 2, textTransform: 'uppercase' }}>
                       Current Time
@@ -163,7 +163,7 @@ const EmployeeDashboard = () => {
                     </Typography>
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid xs={12} sm={6}>
                     {/* Attendance Status */}
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       {isCheckedIn && (
@@ -249,7 +249,7 @@ const EmployeeDashboard = () => {
         </Grid>
 
         {/* Leave Quick Actions */}
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Card sx={{ borderRadius: 3, height: '100%' }}>
             <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Typography variant="h6" fontWeight={700}>Quick Actions</Typography>
@@ -277,7 +277,7 @@ const EmployeeDashboard = () => {
         </Grid>
 
         {/* ---- STATS CARDS ---- */}
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid xs={6} sm={4} md={2}>
           <StatsCard
             title="Casual Leave"
             value={balance?.casualLeave ?? '—'}
@@ -287,7 +287,7 @@ const EmployeeDashboard = () => {
             loading={leaveLoading}
           />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid xs={6} sm={4} md={2}>
           <StatsCard
             title="Medical Leave"
             value={balance?.medicalLeave ?? '—'}
@@ -297,7 +297,7 @@ const EmployeeDashboard = () => {
             loading={leaveLoading}
           />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid xs={6} sm={4} md={2}>
           <StatsCard
             title="Paid Leave"
             value={balance?.paidLeave ?? '—'}
@@ -307,7 +307,7 @@ const EmployeeDashboard = () => {
             loading={leaveLoading}
           />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid xs={6} sm={4} md={2}>
           <StatsCard
             title="Pending"
             value={pendingLeaves}
@@ -317,7 +317,7 @@ const EmployeeDashboard = () => {
             loading={leaveLoading}
           />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid xs={6} sm={4} md={2}>
           <StatsCard
             title="Approved"
             value={approvedLeaves}
@@ -327,7 +327,7 @@ const EmployeeDashboard = () => {
             loading={leaveLoading}
           />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid xs={6} sm={4} md={2}>
           <StatsCard
             title="Rejected"
             value={rejectedLeaves}
@@ -339,7 +339,7 @@ const EmployeeDashboard = () => {
         </Grid>
 
         {/* ---- ATTENDANCE TREND CHART ---- */}
-        <Grid item xs={12} md={7}>
+        <Grid xs={12} md={7}>
           <Card sx={{ borderRadius: 3 }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" fontWeight={700} gutterBottom>
@@ -376,7 +376,7 @@ const EmployeeDashboard = () => {
         </Grid>
 
         {/* ---- LEAVE DISTRIBUTION PIE ---- */}
-        <Grid item xs={12} md={5}>
+        <Grid xs={12} md={5}>
           <Card sx={{ borderRadius: 3 }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" fontWeight={700} gutterBottom>
@@ -418,7 +418,7 @@ const EmployeeDashboard = () => {
         </Grid>
 
         {/* ---- RECENT LEAVE ACTIVITY ---- */}
-        <Grid item xs={12}>
+        <Grid xs={12}>
           <Card sx={{ borderRadius: 3 }}>
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>

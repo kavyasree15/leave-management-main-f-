@@ -36,7 +36,7 @@ const ManagerDashboard = () => {
     dispatch(fetchAllLeaves());
   }, [dispatch]);
 
-  const myTeamLeaves = allLeaves.filter(l => Number(l.managerId) === Number(user?.userId));
+  const myTeamLeaves = allLeaves.filter(l => Number(l.managerId) === Number(user?.userId || user?.id));
   const pendingCount = pendingRequests.length;
   const approvedCount = myTeamLeaves.filter(l => l.status === 'APPROVED' || l.status === 'PENDING_HR').length;
   const totalTeamLeaves = myTeamLeaves.length;
@@ -56,16 +56,16 @@ const ManagerDashboard = () => {
       />
 
       <Grid container spacing={3}>
-        <Grid item xs={6} sm={3}>
+        <Grid xs={6} sm={3}>
           <StatsCard title="Pending Approvals" value={pendingCount} icon={PendingActionsIcon} color="warning" loading={loading} />
         </Grid>
-        <Grid item xs={6} sm={3}>
+        <Grid xs={6} sm={3}>
           <StatsCard title="Approved Leaves" value={approvedCount} icon={CheckCircleIcon} color="success" loading={loading} />
         </Grid>
-        <Grid item xs={6} sm={3}>
+        <Grid xs={6} sm={3}>
           <StatsCard title="Total Requests" value={totalTeamLeaves} icon={GroupIcon} color="info" loading={loading} />
         </Grid>
-        <Grid item xs={6} sm={3}>
+        <Grid xs={6} sm={3}>
           <StatsCard
             title="Avg Response"
             value="< 2d"
@@ -77,7 +77,7 @@ const ManagerDashboard = () => {
         </Grid>
 
         {/* Pending Requests */}
-        <Grid item xs={12} md={7}>
+        <Grid xs={12} md={7}>
           <Card sx={{ borderRadius: 3 }}>
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -137,7 +137,7 @@ const ManagerDashboard = () => {
         </Grid>
 
         {/* Leave Type Chart */}
-        <Grid item xs={12} md={5}>
+        <Grid xs={12} md={5}>
           <Card sx={{ borderRadius: 3 }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" fontWeight={700} gutterBottom>Leave Type Distribution</Typography>

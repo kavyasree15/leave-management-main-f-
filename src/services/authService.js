@@ -42,6 +42,16 @@ const authService = {
    * Response: "approved"
    */
   approveUser: (userId) => api.post(`/api/auth/approve/${userId}`),
+
+  getHrUsers: () => api.get('/api/auth/hr-users'),
+  getHrPendingEmployees: () => api.get('/api/auth/hr/pending-employees'),
+  assignManager: (userId, managerId) => api.post(`/api/auth/users/${userId}/assign-manager?managerId=${managerId}`),
+  getManagerPendingKyc: () => api.get('/api/auth/manager/pending-kyc'),
+  approveKyc: (userId) => api.post(`/api/auth/users/${userId}/kyc/approve`),
+  rejectKyc: (userId, reason) => api.post(`/api/auth/users/${userId}/kyc/reject?reason=${encodeURIComponent(reason)}`),
+  submitKyc: (userId, formData) => api.post(`/api/auth/users/${userId}/kyc`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
 };
 
 export default authService;

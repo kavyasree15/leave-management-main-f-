@@ -51,7 +51,7 @@ const AttendanceReport = () => {
         <CardContent sx={{ p: 3 }}>
           <Box component="form" onSubmit={handleFetchReport}>
             <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-              <Grid item xs={12} sm={3}>
+              <Grid xs={12} sm={3}>
                 <TextField
                   fullWidth
                   label="Employee ID (Optional)"
@@ -61,7 +61,7 @@ const AttendanceReport = () => {
                   size="small"
                 />
               </Grid>
-              <Grid item xs={12} sm={3}>
+              <Grid xs={12} sm={3}>
                 <TextField
                   fullWidth
                   label="Start Date"
@@ -73,7 +73,7 @@ const AttendanceReport = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={12} sm={3}>
+              <Grid xs={12} sm={3}>
                 <TextField
                   fullWidth
                   label="End Date"
@@ -85,7 +85,7 @@ const AttendanceReport = () => {
                   required
                 />
               </Grid>
-              <Grid item xs={12} sm={3}>
+              <Grid xs={12} sm={3}>
                 <Button
                   variant="contained"
                   fullWidth

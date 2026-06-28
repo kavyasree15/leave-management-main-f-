@@ -10,14 +10,15 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleTheme } from '../../redux/slices/dashboardSlice';
 import { logout } from '../../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes';
-import { SIDEBAR_WIDTH } from './Sidebar';
 
-const TopBar = ({ onMenuClick, sidebarOpen, isMobile }) => {
+const TopBar = ({ onMenuClick, onToggleSidebar, sidebarCollapsed, sidebarWidth, isMobile }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -47,8 +48,8 @@ const TopBar = ({ onMenuClick, sidebarOpen, isMobile }) => {
       elevation={0}
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
-        width: { md: `calc(100% - ${sidebarOpen ? SIDEBAR_WIDTH : 0}px)` },
-        ml: { md: sidebarOpen ? `${SIDEBAR_WIDTH}px` : 0 },
+        width: { md: `calc(100% - ${sidebarWidth}px)` },
+        ml: { md: `${sidebarWidth}px` },
         transition: 'width 0.3s ease, margin 0.3s ease',
         bgcolor: 'background.paper',
         borderBottom: '1px solid',
@@ -61,6 +62,13 @@ const TopBar = ({ onMenuClick, sidebarOpen, isMobile }) => {
         {isMobile && (
           <IconButton edge="start" onClick={onMenuClick} sx={{ mr: 1 }}>
             <MenuIcon />
+          </IconButton>
+        )}
+
+        {/* Collapse button (desktop) */}
+        {!isMobile && (
+          <IconButton edge="start" onClick={onToggleSidebar} sx={{ mr: 1.5 }}>
+            {sidebarCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
         )}
 

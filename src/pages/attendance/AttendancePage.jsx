@@ -81,7 +81,7 @@ const AttendancePage = () => {
 
       <Grid container spacing={3}>
         {/* Live clock check-in station */}
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <Card sx={{ borderRadius: 3, height: '100%' }}>
             <CardContent sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', height: '100%' }}>
               <Typography variant="subtitle2" color="text.secondary" sx={{ letterSpacing: 2, textTransform: 'uppercase', mb: 1 }}>
@@ -137,9 +137,9 @@ const AttendancePage = () => {
         </Grid>
 
         {/* Shift detail cards */}
-        <Grid item xs={12} md={6}>
+        <Grid xs={12} md={6}>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Card sx={{ borderRadius: 3 }}>
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="subtitle2" color="text.secondary" gutterBottom>

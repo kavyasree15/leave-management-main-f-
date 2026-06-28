@@ -70,13 +70,13 @@ const LeaveHistory = () => {
 
       {/* Balance stats display */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={4}>
+        <Grid xs={12} sm={4}>
           <StatsCard title="Casual Leave Balance" value={balance?.casualLeave} icon={BeachAccessIcon} color="info" loading={loading} />
         </Grid>
-        <Grid item xs={12} sm={4}>
+        <Grid xs={12} sm={4}>
           <StatsCard title="Medical Leave Balance" value={balance?.medicalLeave} icon={LocalHospitalIcon} color="error" loading={loading} />
         </Grid>
-        <Grid item xs={12} sm={4}>
+        <Grid xs={12} sm={4}>
           <StatsCard title="Paid Leave Balance" value={balance?.paidLeave} icon={AttachMoneyIcon} color="success" loading={loading} />
         </Grid>
       </Grid>

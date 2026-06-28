@@ -52,6 +52,21 @@ export const fetchManagers = createAsyncThunk('auth/fetchManagers', async (_, { 
   }
 });
 
+export const fetchCurrentUser = createAsyncThunk('auth/fetchCurrentUser', async (userId, { rejectWithValue }) => {
+  try {
+    const res = await authService.getUserById(userId);
+    const userWithUserId = { ...res.data, userId: res.data.id };
+    const stored = localStorage.getItem('user') || sessionStorage.getItem('user');
+    const existingUser = stored ? JSON.parse(stored) : {};
+    const updatedUser = { ...existingUser, ...userWithUserId };
+    const storage = localStorage.getItem('user') ? localStorage : sessionStorage;
+    storage.setItem('user', JSON.stringify(updatedUser));
+    return userWithUserId;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || 'Failed to fetch current user');
+  }
+});
+
 export const approveUser = createAsyncThunk('auth/approveUser', async (userId, { rejectWithValue }) => {
   try {
     await authService.approveUser(userId);
@@ -118,6 +133,10 @@ const authSlice = createSlice({
       .addCase(approveUser.fulfilled, (state, action) => {
         const uid = action.payload;
         state.users = state.users.map(u => u.id === uid ? { ...u, approved: true } : u);
+      })
+      // Fetch current user
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.user = action.payload;
       });
   },
 });

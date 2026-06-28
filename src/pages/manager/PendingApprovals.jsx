@@ -63,8 +63,10 @@ const PendingApprovals = () => {
   return (
     <Box>
       <PageHeader
-        title={user?.role === 'HR' ? 'Pending HR Approvals' : 'Pending Manager Approvals'}
-        subtitle="Manage, review, approve or reject leave requests submitted by employees"
+        title={user?.role === 'HR' ? 'Pending HR Approvals' : 'Pending Leave Approvals'}
+        subtitle={user?.role === 'HR'
+          ? 'Review leave requests from employees (long-duration) and managers — all requiring HR sign-off'
+          : 'Manage, review, approve or reject leave requests submitted by your team employees'}
         breadcrumbs={[{ label: 'Dashboard', path: '/dashboard' }, { label: 'Pending Approvals' }]}
       />
 
@@ -88,7 +90,7 @@ const PendingApprovals = () => {
             <Card key={req.id} sx={{ borderRadius: 3 }}>
               <CardContent sx={{ p: 3 }}>
                 <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-                  <Grid item xs={12} md={7}>
+                  <Grid xs={12} md={7}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1.5 }}>
                       <Avatar sx={{ bgcolor: 'primary.main', fontWeight: 700 }}>
                         {req.userId.toString().charAt(0)}
@@ -126,7 +128,7 @@ const PendingApprovals = () => {
                     )}
                   </Grid>
 
-                  <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' }, gap: 2 }}>
+                  <Grid xs={12} md={5} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' }, gap: 2 }}>
                     <Button
                       variant="contained"
                       color="success"

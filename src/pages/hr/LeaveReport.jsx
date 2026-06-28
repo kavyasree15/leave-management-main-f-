@@ -43,7 +43,7 @@ const LeaveReport = () => {
         <CardContent sx={{ p: 3 }}>
           <Box component="form" onSubmit={handleFetchReport}>
             <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-              <Grid item xs={12} sm={8}>
+              <Grid xs={12} sm={8}>
                 <TextField
                   fullWidth
                   label="Employee ID (Optional)"
@@ -54,7 +54,7 @@ const LeaveReport = () => {
                   size="small"
                 />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid xs={12} sm={4}>
                 <Button
                   variant="contained"
                   fullWidth

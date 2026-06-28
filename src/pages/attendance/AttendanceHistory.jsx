@@ -47,7 +47,7 @@ const AttendanceHistory = () => {
         <CardContent sx={{ p: 3 }}>
           {/* Filters */}
           <Grid container spacing={2} sx={{ mb: 3, alignItems: 'center' }}>
-            <Grid item xs={12} sm={4}>
+            <Grid xs={12} sm={4}>
               <TextField
                 fullWidth
                 label="Start Date"
@@ -58,7 +58,7 @@ const AttendanceHistory = () => {
                 size="small"
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid xs={12} sm={4}>
               <TextField
                 fullWidth
                 label="End Date"
@@ -69,7 +69,7 @@ const AttendanceHistory = () => {
                 size="small"
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid xs={12} sm={4}>
               <Button
                 variant="outlined"
                 color="inherit"

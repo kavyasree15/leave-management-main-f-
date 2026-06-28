@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import {
   Box, Card, CardContent, Typography, TextField, InputAdornment, Button,
   Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
-  CircularProgress
+  CircularProgress, MenuItem, Select, FormControl, InputLabel, Stack, Chip
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import SearchIcon from '@mui/icons-material/Search';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAllUsers, approveUser } from '../../redux/slices/authSlice';
+import { fetchAllUsers, approveUser, registerUser } from '../../redux/slices/authSlice';
+import authService from '../../services/authService';
 import PageHeader from '../../components/common/PageHeader';
 import { toast } from 'react-toastify';
 
@@ -20,9 +21,64 @@ const UserManagement = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  const [createOpen, setCreateOpen] = useState(false);
+  const [hrList, setHrList] = useState([]);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('EMPLOYEE');
+  const [hrId, setHrId] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
     dispatch(fetchAllUsers());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (createOpen) {
+      authService.getHrUsers()
+        .then(res => setHrList(res.data))
+        .catch(err => console.error("Failed to load HR users", err));
+    }
+  }, [createOpen]);
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    if (!username || !email || !password || !role) {
+      toast.error("Please fill in all mandatory fields");
+      return;
+    }
+    if (role === 'EMPLOYEE' && !hrId) {
+      toast.error("Please assign an HR officer to the employee");
+      return;
+    }
+    if (role === 'MANAGER' && !hrId) {
+      toast.error("Please assign an HR officer to the manager (required for leave approvals)");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const payload = { username, email, password, role, hrId: (role === 'EMPLOYEE' || role === 'MANAGER') ? hrId : null };
+      const result = await dispatch(registerUser(payload));
+      if (registerUser.fulfilled.match(result)) {
+        toast.success(`User ${username} created successfully!`);
+        setCreateOpen(false);
+        setUsername('');
+        setEmail('');
+        setPassword('');
+        setRole('EMPLOYEE');
+        setHrId('');
+        dispatch(fetchAllUsers());
+      } else {
+        toast.error(result.payload || "Failed to create user");
+      }
+    } catch (err) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleOpenConfirm = (user) => {
     setSelectedUser(user);
@@ -58,42 +114,29 @@ const UserManagement = () => {
     { field: 'role', headerName: 'Role', width: 130 },
     { field: 'managerId', headerName: 'Manager ID', width: 130, valueFormatter: (params) => params || 'None' },
     {
-      field: 'approved',
+      field: 'kycStatus',
       headerName: 'Status',
-      width: 150,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-          {params.value ? (
-            <Box sx={{ color: 'success.main', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <CheckCircleIcon fontSize="small" /> Approved
-            </Box>
-          ) : (
-            <Box sx={{ color: 'warning.main', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <HowToRegIcon fontSize="small" /> Pending Approval
-            </Box>
-          )}
-        </Box>
-      )
-    },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 150,
+      width: 180,
       renderCell: (params) => {
-        if (!params.row.approved) {
+        const row = params.row;
+        if (row.role !== 'EMPLOYEE') {
           return (
-            <Button
-              variant="contained"
-              color="success"
-              size="small"
-              onClick={() => handleOpenConfirm(params.row)}
-              sx={{ borderRadius: 2, textTransform: 'none' }}
-            >
-              Approve
-            </Button>
+            <Box sx={{ color: 'success.main', display: 'flex', alignItems: 'center', gap: 0.5, height: '100%' }}>
+              <CheckCircleIcon fontSize="small" /> Active
+            </Box>
           );
         }
-        return null;
+        const status = row.kycStatus || 'PENDING';
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+            <Chip
+              label={status}
+              size="small"
+              color={status === 'APPROVED' ? 'success' : status === 'REJECTED' ? 'error' : 'warning'}
+              sx={{ fontWeight: 600 }}
+            />
+          </Box>
+        );
       }
     }
   ];
@@ -108,13 +151,13 @@ const UserManagement = () => {
 
       <Card sx={{ borderRadius: 3, mb: 3 }}>
         <CardContent sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+          <Box sx={{ display: 'flex', gap: 2, mb: 3, justifyContent: 'space-between', alignItems: 'center' }}>
             <TextField
               placeholder="Search by username, email, or role..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               size="small"
-              fullWidth
+              sx={{ flexGrow: 1 }}
               slotProps={{
                 input: {
                   startAdornment: (
@@ -125,6 +168,14 @@ const UserManagement = () => {
                 }
               }}
             />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setCreateOpen(true)}
+              sx={{ borderRadius: 2.5, px: 3.5, py: 1, textTransform: 'none', fontWeight: 700 }}
+            >
+              Create User
+            </Button>
           </Box>
 
           <Box sx={{ height: 500, width: '100%' }}>
@@ -161,19 +212,78 @@ const UserManagement = () => {
         </CardContent>
       </Card>
 
-      {/* Confirmation Dialog */}
-      <Dialog open={confirmOpen} onClose={handleCloseConfirm}>
-        <DialogTitle>Approve User Registration?</DialogTitle>
+      {/* Create User Dialog */}
+      <Dialog open={createOpen} onClose={() => setCreateOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 800 }}>Create New User</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to approve user <strong>{selectedUser?.username}</strong> ({selectedUser?.email})?
-            This will allow them to login and access functions matching their role: {selectedUser?.role}.
-          </DialogContentText>
+          <Box component="form" onSubmit={handleCreateUser} sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Role</InputLabel>
+              <Select
+                value={role}
+                label="Role"
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <MenuItem value="EMPLOYEE">Employee</MenuItem>
+                <MenuItem value="MANAGER">Manager</MenuItem>
+                <MenuItem value="HR">HR</MenuItem>
+              </Select>
+            </FormControl>
+
+            <TextField
+              label="Full Name"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              size="small"
+              fullWidth
+              required
+            />
+
+            <TextField
+              label="Email Address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              size="small"
+              fullWidth
+              required
+            />
+
+            <TextField
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              size="small"
+              fullWidth
+              required
+            />
+
+            {(role === 'EMPLOYEE' || role === 'MANAGER') && (
+              <FormControl fullWidth size="small" required>
+                <InputLabel>{role === 'MANAGER' ? 'Assigned HR (for leave approvals)' : 'Assigned HR'}</InputLabel>
+                <Select
+                  value={hrId}
+                  label={role === 'MANAGER' ? 'Assigned HR (for leave approvals)' : 'Assigned HR'}
+                  onChange={(e) => setHrId(e.target.value)}
+                >
+                  {hrList.length === 0 ? (
+                    <MenuItem disabled>No HR users found — create an HR first</MenuItem>
+                  ) : hrList.map(hr => (
+                    <MenuItem key={hr.id} value={hr.id}>{hr.username} ({hr.email})</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+
+            <DialogActions sx={{ px: 0, pb: 0, pt: 2 }}>
+              <Button onClick={() => setCreateOpen(false)} color="inherit" disabled={submitting}>Cancel</Button>
+              <Button type="submit" variant="contained" color="primary" disabled={submitting}>
+                {submitting ? <CircularProgress size={24} /> : 'Create User'}
+              </Button>
+            </DialogActions>
+          </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseConfirm} color="inherit">Cancel</Button>
-          <Button onClick={handleApprove} color="success" variant="contained">Approve User</Button>
-        </DialogActions>
       </Dialog>
     </Box>
   );

@@ -1,23 +1,38 @@
 import React, { useState } from 'react';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
-import Sidebar, { SIDEBAR_WIDTH } from './Sidebar';
+import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 
 const MainLayout = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const handleDrawerToggle = () => setMobileOpen(prev => !prev);
+  const handleToggleSidebar = () => setSidebarCollapsed(prev => !prev);
+
+  const currentSidebarWidth = isMobile ? 260 : (sidebarCollapsed ? 70 : 260);
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
       {/* Desktop Sidebar */}
-      {!isMobile && <Sidebar variant="permanent" />}
+      {!isMobile && (
+        <Sidebar
+          variant="permanent"
+          isCollapsed={sidebarCollapsed}
+          width={currentSidebarWidth}
+        />
+      )}
 
       {/* Mobile Drawer */}
       {isMobile && (
-        <Sidebar variant="temporary" open={mobileOpen} onClose={() => setMobileOpen(false)} />
+        <Sidebar
+          variant="temporary"
+          open={mobileOpen}
+          onClose={() => setMobileOpen(false)}
+          width={260}
+        />
       )}
 
       {/* Main content */}
@@ -33,7 +48,9 @@ const MainLayout = ({ children }) => {
       >
         <TopBar
           onMenuClick={handleDrawerToggle}
-          sidebarOpen={!isMobile}
+          onToggleSidebar={handleToggleSidebar}
+          sidebarCollapsed={sidebarCollapsed}
+          sidebarWidth={currentSidebarWidth}
           isMobile={isMobile}
         />
 

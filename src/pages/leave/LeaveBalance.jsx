@@ -35,7 +35,7 @@ const LeaveBalance = () => {
       ) : (
         <Grid container spacing={3}>
           {cards.map((c, i) => (
-            <Grid item xs={12} sm={4} key={i}>
+            <Grid xs={12} sm={4} key={i}>
               <Card sx={{ borderRadius: 3, height: '100%' }}>
                 <CardContent sx={{ p: 3, display: 'flex', flexDirection: 'column', height: '100%' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>

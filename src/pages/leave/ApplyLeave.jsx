@@ -16,28 +16,42 @@ import { LEAVE_TYPES } from '../../constants/leaveTypes';
 import { calculateBusinessDays } from '../../utils/dateUtils';
 import { toast } from 'react-toastify';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import InfoIcon from '@mui/icons-material/Info';
 
-const schema = yup.object({
+// Schema is built dynamically based on role
+const buildSchema = (isManager) => yup.object({
   leaveType: yup.string().required('Leave type is required'),
   startDate: yup.string().required('Start date is required'),
   endDate: yup.string().required('End date is required'),
   reason: yup.string().required('Reason is required').min(10, 'Must be at least 10 characters'),
-  managerId: yup.number().required('Manager selection is required').typeError('Select a manager'),
+  ...(isManager ? {} : {
+    managerId: yup.number().required('Manager selection is required').typeError('Select a manager')
+  }),
   medicalCertificate: yup.string().nullable(),
 });
 
 const ApplyLeave = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { managers, managersLoading } = useSelector(state => state.auth);
+  const { managers, managersLoading, user } = useSelector(state => state.auth);
   const { balance, actionLoading, applySuccess, error } = useSelector(state => state.leave);
   const [certBase64, setCertBase64] = useState(null);
   const [certName, setCertName] = useState('');
+
+  const isManager = user?.role === 'MANAGER';
+  const schema = buildSchema(isManager);
 
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
     defaultValues: { leaveType: '', startDate: '', endDate: '', reason: '', managerId: '', medicalCertificate: null }
   });
+
+  // Log validation errors to console to help debug if form doesn't submit
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      console.warn('Leave Application Form validation errors:', errors);
+    }
+  }, [errors]);
 
   const watchLeaveType = watch('leaveType');
   const watchStartDate = watch('startDate');
@@ -99,7 +113,8 @@ const ApplyLeave = () => {
       endDate: data.endDate,
       leaveType: data.leaveType,
       reason: data.reason,
-      managerId: Number(data.managerId),
+      // Managers go directly to HR — no managerId needed (backend uses role)
+      managerId: isManager ? 0 : Number(data.managerId),
       medicalCertificate: certBase64,
     };
     dispatch(applyLeave(payload));
@@ -109,18 +124,27 @@ const ApplyLeave = () => {
     <Box>
       <PageHeader
         title="Apply for Leave"
-        subtitle="Submit a new leave request for manager approval"
+        subtitle={isManager
+          ? 'Submit a leave request — it will be reviewed and approved by HR'
+          : 'Submit a new leave request for manager approval'}
         breadcrumbs={[{ label: 'Dashboard', path: '/dashboard' }, { label: 'Apply Leave' }]}
       />
 
+      {/* Manager-specific info banner */}
+      {isManager && (
+        <Alert severity="info" icon={<InfoIcon />} sx={{ mb: 3, borderRadius: 3, fontWeight: 500 }}>
+          As a Manager, your leave requests are submitted directly to <strong>HR</strong> for approval.
+        </Alert>
+      )}
+
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+        <Grid xs={12} md={8}>
           <Card sx={{ borderRadius: 3 }}>
             <CardContent sx={{ p: 3 }}>
               <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
                 <Grid container spacing={2}>
                   {/* Leave Type */}
-                  <Grid item xs={12} sm={6}>
+                  <Grid xs={12} sm={6}>
                     <FormControl fullWidth error={!!errors.leaveType}>
                       <InputLabel>Leave Type</InputLabel>
                       <Controller
@@ -138,29 +162,31 @@ const ApplyLeave = () => {
                     </FormControl>
                   </Grid>
 
-                  {/* Manager */}
-                  <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth error={!!errors.managerId}>
-                      <InputLabel>Approving Manager</InputLabel>
-                      <Controller
-                        name="managerId"
-                        control={control}
-                        render={({ field }) => (
-                          <Select {...field} label="Approving Manager">
-                            {managersLoading ? (
-                              <MenuItem disabled>Loading managers...</MenuItem>
-                            ) : managers.map(m => (
-                              <MenuItem key={m.id} value={m.id}>{m.username} ({m.email})</MenuItem>
-                            ))}
-                          </Select>
-                        )}
-                      />
-                      {errors.managerId && <FormHelperText>{errors.managerId.message}</FormHelperText>}
-                    </FormControl>
-                  </Grid>
+                  {/* Manager dropdown — only shown for Employees */}
+                  {!isManager && (
+                    <Grid xs={12} sm={6}>
+                      <FormControl fullWidth error={!!errors.managerId}>
+                        <InputLabel>Approving Manager</InputLabel>
+                        <Controller
+                          name="managerId"
+                          control={control}
+                          render={({ field }) => (
+                            <Select {...field} label="Approving Manager">
+                              {managersLoading ? (
+                                <MenuItem disabled>Loading managers...</MenuItem>
+                              ) : managers.map(m => (
+                                <MenuItem key={m.id} value={m.id}>{m.username} ({m.email})</MenuItem>
+                              ))}
+                            </Select>
+                          )}
+                        />
+                        {errors.managerId && <FormHelperText>{errors.managerId.message}</FormHelperText>}
+                      </FormControl>
+                    </Grid>
+                  )}
 
                   {/* Start Date */}
-                  <Grid item xs={12} sm={6}>
+                  <Grid xs={12} sm={6}>
                     <TextField
                       fullWidth
                       label="Start Date"
@@ -173,7 +199,7 @@ const ApplyLeave = () => {
                   </Grid>
 
                   {/* End Date */}
-                  <Grid item xs={12} sm={6}>
+                  <Grid xs={12} sm={6}>
                     <TextField
                       fullWidth
                       label="End Date"
@@ -187,7 +213,7 @@ const ApplyLeave = () => {
 
                   {/* Business Days Preview */}
                   {watchStartDate && watchEndDate && (
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                       <Alert severity="info" sx={{ borderRadius: 2 }}>
                         Calculated duration: <strong>{businessDays} Business Days</strong> (excluding weekends)
                       </Alert>
@@ -196,7 +222,7 @@ const ApplyLeave = () => {
 
                   {/* Certificate Upload */}
                   {isMedical && (
-                    <Grid item xs={12}>
+                    <Grid xs={12}>
                       <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2, borderStyle: certRequired ? 'dashed' : 'solid', borderColor: certRequired ? 'error.main' : 'divider' }}>
                         <Typography variant="subtitle2" fontWeight={700} color={certRequired ? 'error' : 'text.primary'} gutterBottom>
                           Medical Certificate {certRequired ? '(Required)' : '(Optional)'}
@@ -223,7 +249,7 @@ const ApplyLeave = () => {
                   )}
 
                   {/* Reason */}
-                  <Grid item xs={12}>
+                  <Grid xs={12}>
                     <TextField
                       fullWidth
                       label="Reason / Comments"
@@ -253,7 +279,7 @@ const ApplyLeave = () => {
         </Grid>
 
         {/* Balances display panel */}
-        <Grid item xs={12} md={4}>
+        <Grid xs={12} md={4}>
           <Card sx={{ borderRadius: 3 }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" fontWeight={700} gutterBottom>Leave Accruals</Typography>

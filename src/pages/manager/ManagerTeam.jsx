@@ -19,7 +19,7 @@ const ManagerTeam = () => {
   }, [dispatch]);
 
   // Filter users that report to this manager
-  const teamMembers = users.filter(u => u.managerId === currentUser?.userId);
+  const teamMembers = users.filter(u => u.managerId === (currentUser?.userId || currentUser?.id));
 
   const filteredTeam = teamMembers.filter(member =>
     member.username.toLowerCase().includes(searchTerm.toLowerCase()) ||

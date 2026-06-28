@@ -238,38 +238,8 @@ const LoginPage = () => {
                   {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
                 </Button>
 
-                <Divider sx={{ my: 3 }}>
-                  <Typography variant="caption" color="text.secondary">or</Typography>
-                </Divider>
+                {/* Registration links removed - admin creation only */}
 
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Don't have an account?{' '}
-                    <Typography
-                      component={Link}
-                      to={ROUTES.REGISTER}
-                      variant="body2"
-                      color="primary"
-                      fontWeight={700}
-                      sx={{ textDecoration: 'none' }}
-                    >
-                      Register here
-                    </Typography>
-                  </Typography>
-                </Box>
-
-                <Box sx={{
-                  mt: 3, p: 2, borderRadius: 2,
-                  bgcolor: 'primary.main',
-                  opacity: 0.9,
-                }}>
-                  <Typography variant="caption" sx={{ color: 'white', display: 'block', fontWeight: 600, mb: 0.5 }}>
-                    🔑 Demo Admin Credentials
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.85)', fontFamily: 'monospace' }}>
-                    admin@technova.com / admin123
-                  </Typography>
-                </Box>
               </Box>
             </CardContent>
           </Card>
