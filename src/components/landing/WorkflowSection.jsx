@@ -21,7 +21,7 @@ const WorkflowSection = () => {
     { icon: LoginIcon, title: 'Secure Login', desc: 'Auth via credentials and stateless JWT token.', color: '#3B82F6' },
     { icon: TouchAppIcon, title: 'Daily Check-In', desc: 'Logs check-in time and check-out durations.', color: '#10B981' },
     { icon: AddTaskIcon, title: 'Submit Request', desc: 'File casual or medical leaves with balances check.', color: '#EC4899' },
-    { icon: VerifiedUserIcon, title: 'Dual Approval', desc: 'Supervisors and HR approve requests >= 10 days.', color: '#8B5CF6' }
+    { icon: VerifiedUserIcon, title: 'Dual Approval', desc: 'Supervisors and HR approve requests > 10 days.', color: '#8B5CF6' }
   ];
 
   return (
@@ -109,14 +109,14 @@ const WorkflowSection = () => {
             <Stack direction="row" sx={{ justifyContent: 'center' }}>
               <Button
                 variant="contained"
-                onClick={() => navigate(ROUTES.REGISTER)}
+                onClick={() => navigate(ROUTES.LOGIN)}
                 endIcon={<ArrowForwardIcon />}
                 sx={{
                   borderRadius: 2.5, px: 4, py: 1.5, fontWeight: 750, bgcolor: 'white', color: 'primary.main',
                   '&:hover': { bgcolor: 'rgba(255,255,255,0.9)' }
                 }}
               >
-                Register Now
+                Sign In Now
               </Button>
             </Stack>
           </CardContent>

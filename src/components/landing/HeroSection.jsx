@@ -131,7 +131,7 @@ const HeroSection = () => {
                 <Button
                   variant="contained"
                   size="large"
-                  onClick={() => navigate(ROUTES.REGISTER)}
+                  onClick={() => navigate(ROUTES.LOGIN)}
                   sx={{
                     borderRadius: 2.5, px: 4, py: 1.5, fontWeight: 750, textTransform: 'none',
                     background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
@@ -139,7 +139,7 @@ const HeroSection = () => {
                     '&:hover': { background: 'linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)' }
                   }}
                 >
-                  Register
+                  Sign In to Portal
                 </Button>
                 <Button
                   variant="outlined"

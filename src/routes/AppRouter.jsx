@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import RoleRoute from './RoleRoute';
 import LoginPage from '../pages/auth/LoginPage';
-import RegisterPage from '../pages/auth/RegisterPage';
 import LandingPage from '../pages/auth/LandingPage';
 import KycPage from '../pages/auth/KycPage';
 import MainLayout from '../components/layouts/MainLayout';
@@ -61,7 +60,7 @@ const AppRouter = () => {
       {/* Public routes */}
       <Route path="/" element={<LandingPage />} />
       <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-      <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
+      <Route path="/register" element={<Navigate to={ROUTES.LOGIN} replace />} />
 
       {/* Main portal layout containing authenticated routes */}
       <Route

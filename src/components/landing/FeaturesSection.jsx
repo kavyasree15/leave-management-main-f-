@@ -28,7 +28,7 @@ const FeaturesSection = () => {
     { icon: TouchAppIcon, title: 'Smart Check-In', desc: 'Single-click check-ins with local shift time logging.', color: '#3B82F6' },
     { icon: UpdateDisabledIcon, title: 'Late Entry Auditing', desc: 'Automatic late check-in flag triggers to track compliance.', color: '#EF4444' },
     { icon: AccountBalanceWalletIcon, title: 'Live Balance Wallets', desc: 'Real-time casual, medical and paid leave balances.', color: '#10B981' },
-    { icon: RuleFolderIcon, title: 'Multi-Level Approvals', desc: 'Approvals escalate automatically to HR for requests >= 10 days.', color: '#EC4899' },
+    { icon: RuleFolderIcon, title: 'Multi-Level Approvals', desc: 'Approvals escalate automatically to HR for requests > 10 days.', color: '#EC4899' },
     { icon: AssessmentIcon, title: 'HR Trend Analytics', desc: 'Visual charts illustrating check-in logs and leave distributions.', color: '#F59E0B' },
     { icon: LockOpenIcon, title: 'JWT Security', desc: 'Stateless session authentication token keys exchanged via headers.', color: '#6366F1' },
     { icon: NotificationsActiveIcon, title: 'Kafka Notifications', desc: 'Real-time updates distributed asynchronously via Kafka channels.', color: '#06B6D4' },
