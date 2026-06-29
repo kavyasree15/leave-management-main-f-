@@ -18,32 +18,27 @@ import { toast } from 'react-toastify';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import InfoIcon from '@mui/icons-material/Info';
 
-// Schema is built dynamically based on role
-const buildSchema = (isManager) => yup.object({
+const schema = yup.object({
   leaveType: yup.string().required('Leave type is required'),
   startDate: yup.string().required('Start date is required'),
   endDate: yup.string().required('End date is required'),
   reason: yup.string().required('Reason is required').min(10, 'Must be at least 10 characters'),
-  ...(isManager ? {} : {
-    managerId: yup.number().required('Manager selection is required').typeError('Select a manager')
-  }),
   medicalCertificate: yup.string().nullable(),
 });
 
 const ApplyLeave = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { managers, managersLoading, user } = useSelector(state => state.auth);
+  const { user } = useSelector(state => state.auth);
   const { balance, actionLoading, applySuccess, error } = useSelector(state => state.leave);
   const [certBase64, setCertBase64] = useState(null);
   const [certName, setCertName] = useState('');
 
   const isManager = user?.role === 'MANAGER';
-  const schema = buildSchema(isManager);
 
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
-    defaultValues: { leaveType: '', startDate: '', endDate: '', reason: '', managerId: '', medicalCertificate: null }
+    defaultValues: { leaveType: '', startDate: '', endDate: '', reason: '', medicalCertificate: null }
   });
 
   // Log validation errors to console to help debug if form doesn't submit
@@ -58,7 +53,6 @@ const ApplyLeave = () => {
   const watchEndDate = watch('endDate');
 
   useEffect(() => {
-    dispatch(fetchManagers());
     dispatch(fetchMyBalance());
     return () => {
       dispatch(clearApplySuccess());
@@ -113,8 +107,7 @@ const ApplyLeave = () => {
       endDate: data.endDate,
       leaveType: data.leaveType,
       reason: data.reason,
-      // Managers go directly to HR — no managerId needed (backend uses role)
-      managerId: isManager ? 0 : Number(data.managerId),
+      managerId: 0, // Automatically resolved by backend based on HR mapping
       medicalCertificate: certBase64,
     };
     dispatch(applyLeave(payload));
@@ -126,16 +119,17 @@ const ApplyLeave = () => {
         title="Apply for Leave"
         subtitle={isManager
           ? 'Submit a leave request — it will be reviewed and approved by HR'
-          : 'Submit a new leave request for manager approval'}
+          : 'Submit a leave request — it will be routed directly to your assigned manager'}
         breadcrumbs={[{ label: 'Dashboard', path: '/dashboard' }, { label: 'Apply Leave' }]}
       />
 
-      {/* Manager-specific info banner */}
-      {isManager && (
-        <Alert severity="info" icon={<InfoIcon />} sx={{ mb: 3, borderRadius: 3, fontWeight: 500 }}>
-          As a Manager, your leave requests are submitted directly to <strong>HR</strong> for approval.
-        </Alert>
-      )}
+      {/* Role-specific info banner */}
+      <Alert severity="info" icon={<InfoIcon />} sx={{ mb: 3, borderRadius: 3, fontWeight: 500 }}>
+        {isManager 
+          ? <>As a Manager, your leave requests are submitted directly to <strong>HR</strong> for approval.</>
+          : <>Your leave requests are automatically routed to your **assigned reporting manager** mapped by HR.</>
+        }
+      </Alert>
 
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
@@ -144,7 +138,7 @@ const ApplyLeave = () => {
               <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
                 <Grid container spacing={2}>
                   {/* Leave Type */}
-                  <Grid xs={12} sm={6}>
+                  <Grid xs={12}>
                     <FormControl fullWidth error={!!errors.leaveType}>
                       <InputLabel>Leave Type</InputLabel>
                       <Controller
@@ -161,29 +155,6 @@ const ApplyLeave = () => {
                       {errors.leaveType && <FormHelperText>{errors.leaveType.message}</FormHelperText>}
                     </FormControl>
                   </Grid>
-
-                  {/* Manager dropdown — only shown for Employees */}
-                  {!isManager && (
-                    <Grid xs={12} sm={6}>
-                      <FormControl fullWidth error={!!errors.managerId}>
-                        <InputLabel>Approving Manager</InputLabel>
-                        <Controller
-                          name="managerId"
-                          control={control}
-                          render={({ field }) => (
-                            <Select {...field} label="Approving Manager">
-                              {managersLoading ? (
-                                <MenuItem disabled>Loading managers...</MenuItem>
-                              ) : managers.map(m => (
-                                <MenuItem key={m.id} value={m.id}>{m.username} ({m.email})</MenuItem>
-                              ))}
-                            </Select>
-                          )}
-                        />
-                        {errors.managerId && <FormHelperText>{errors.managerId.message}</FormHelperText>}
-                      </FormControl>
-                    </Grid>
-                  )}
 
                   {/* Start Date */}
                   <Grid xs={12} sm={6}>

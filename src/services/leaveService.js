@@ -47,6 +47,12 @@ const leaveService = {
   getUserBalance: (userId) => api.get(`/api/leaves/balance/${userId}`),
 
   /**
+   * GET /api/leaves/user/{userId}
+   * Response: LeaveRequest[]
+   */
+  getUserLeaves: (userId) => api.get(`/api/leaves/user/${userId}`),
+
+  /**
    * GET /api/leaves/my
    * Response: LeaveRequest[]
    */
